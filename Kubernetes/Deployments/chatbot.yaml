@@ -1,0 +1,121 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: chatbot-ms
+  namespace: proyecto-sa
+  annotations:
+    cloud.google.com/neg: '{"ingress": true}'
+spec:
+  selector:
+    app: chatbot-ms
+  ports:
+    - protocol: TCP
+      port: 5500
+      targetPort: 5500
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: chatbot-ms
+  namespace: proyecto-sa
+  labels:
+    app: chatbot-ms
+spec:
+  selector:
+    matchLabels:
+      app: chatbot-ms
+  template:
+    metadata:
+      labels:
+        app: chatbot-ms
+    spec:
+      containers:
+        - name: chatbot-ms
+          image: iskandar1412/proyecto-sa:chatbot
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 5500
+          env:
+            # CONFIGURACIÓN DB
+            - name: DATABASE_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: database-config
+                  key: DATABASE_HOST
+            - name: DATABASE_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: database-config
+                  key: DATABASE_PORT
+            # CONFIGURACIÓN CORREO
+            - name: BASE_CORREO
+              valueFrom:
+                configMapKeyRef:
+                  name: correo-config
+                  key: BASE_CORREO
+            - name: BASE_CORREO_PASS
+              valueFrom:
+                configMapKeyRef:
+                  name: correo-config
+                  key: BASE_CORREO_PASS
+            # CONFIGURACIÓN CORS
+            - name: ALLOWED_CORS_ORIGINS
+              valueFrom:
+                configMapKeyRef:
+                  name: cors-config
+                  key: ALLOWED_CORS_ORIGINS
+            # CONFIGURACIÓN CHATBOT
+            - name: TABLE_CHATBOT
+              valueFrom:
+                configMapKeyRef:
+                  name: chatbot-config
+                  key: TABLE_CHATBOT
+            # CONFIGURACIÓN PRODUCTOS
+            - name: TABLE_PRODUCTOS
+              valueFrom:
+                configMapKeyRef:
+                  name: productos-config
+                  key: TABLE_PRODUCTOS
+            # CONFIGURACIÓN DEVOLUCIONES
+            - name: TABLE_DEVOLUCIONES
+              valueFrom:
+                configMapKeyRef:
+                  name: devoluciones-config
+                  key: TABLE_DEVOLUCIONES
+            # CONFIGURACIÓN COMPRAS
+            - name: TABLE_COMPRAS
+              valueFrom:
+                configMapKeyRef:
+                  name: compras-config
+                  key: TABLE_COMPRAS
+            # CONFIGURACIÓN USUARIO
+            - name: TABLE_USUARIOS
+              valueFrom:
+                configMapKeyRef:
+                  name: usuarios-config
+                  key: TABLE_USUARIOS
+            # CONEXIÓN CON MICROSERVICIO DE USUARIOS
+            - name: USUARIOS_MICROSERVICIO_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: conexion-config
+                  key: USUARIOS_MICROSERVICIO_URL
+            # SECRET BASE DE DATOS
+            - name: DATABASE_MYSQL_USER
+              valueFrom:
+                secretKeyRef:
+                  name: database-secret
+                  key: DATABASE_MYSQL_USER
+            - name: DATABASE_MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: database-secret
+                  key: DATABASE_MYSQL_PASSWORD
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "64m"
+            limits:
+              memory: "128Mi"
+              cpu: "64m"

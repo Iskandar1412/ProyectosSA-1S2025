@@ -1,0 +1,86 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: pagos-ms
+  namespace: proyecto-sa
+  annotations:
+    cloud.google.com/neg: '{"ingress": true}'
+spec:
+  selector:
+    app: pagos-ms
+  ports:
+    - protocol: TCP
+      port: 5600
+      targetPort: 5600
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pagos-ms
+  namespace: proyecto-sa
+  labels:
+    app: pagos-ms
+spec:
+  selector:
+    matchLabels:
+      app: pagos-ms
+  template:
+    metadata:
+      labels:
+        app: pagos-ms
+    spec:
+      containers:
+        - name: pagos-ms
+          image: iskandar1412/proyecto-sa:pagos
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 5600
+          env:
+            # CONFIGURACIÓN DB
+            - name: DATABASE_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: database-config
+                  key: DATABASE_HOST
+            - name: DATABASE_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: database-config
+                  key: DATABASE_PORT
+            # CONFIGURACIÓN CORS
+            - name: ALLOWED_CORS_ORIGINS
+              valueFrom:
+                configMapKeyRef:
+                  name: cors-config
+                  key: ALLOWED_CORS_ORIGINS
+            # CONFIGURACIÓN PAGOS
+            - name: TABLE_PAGOS
+              valueFrom:
+                configMapKeyRef:
+                  name: pagos-config
+                  key: TABLE_PAGOS
+            # CONEXIÓN CON MICROSERVICIO DE USUARIOS
+            - name: USUARIOS_MICROSERVICIO_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: conexion-config
+                  key: USUARIOS_MICROSERVICIO_URL
+            # SECRET BASE DE DATOS
+            - name: DATABASE_MYSQL_USER
+              valueFrom:
+                secretKeyRef:
+                  name: database-secret
+                  key: DATABASE_MYSQL_USER
+            - name: DATABASE_MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: database-secret
+                  key: DATABASE_MYSQL_PASSWORD
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "64m"
+            limits:
+              memory: "128Mi"
+              cpu: "64m"

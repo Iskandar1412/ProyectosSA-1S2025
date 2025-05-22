@@ -1,0 +1,108 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: compras-ms
+  namespace: proyecto-sa
+  annotations:
+    cloud.google.com/neg: '{"ingress": true}'
+spec:
+  selector:
+    app: compras-ms
+  ports:
+    - protocol: TCP
+      port: 5100
+      targetPort: 5100
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: compras-ms
+  namespace: proyecto-sa
+  labels:
+    app: compras-ms
+spec:
+  selector:
+    matchLabels:
+      app: compras-ms
+  template:
+    metadata:
+      labels:
+        app: compras-ms
+    spec:
+      containers:
+        - name: compras-ms
+          image: iskandar1412/proyecto-sa:compras
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 5100
+          env:
+            # CONFIGURACIÓN DB
+            - name: DATABASE_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: database-config
+                  key: DATABASE_HOST
+            - name: DATABASE_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: database-config
+                  key: DATABASE_PORT
+            # CONFIGURACIÓN CORREO
+            - name: BASE_CORREO
+              valueFrom:
+                configMapKeyRef:
+                  name: correo-config
+                  key: BASE_CORREO
+            - name: BASE_CORREO_PASS
+              valueFrom:
+                configMapKeyRef:
+                  name: correo-config
+                  key: BASE_CORREO_PASS
+            # CONFIGURACIÓN CORS
+            - name: ALLOWED_CORS_ORIGINS
+              valueFrom:
+                configMapKeyRef:
+                  name: cors-config
+                  key: ALLOWED_CORS_ORIGINS
+            # CONFIGURACIÓN COMPRAS
+            - name: TABLE_COMPRAS
+              valueFrom:
+                configMapKeyRef:
+                  name: compras-config
+                  key: TABLE_COMPRAS
+            # CONEXIÓN CON MICROSERVICIO DE USUARIOS
+            - name: USUARIOS_MICROSERVICIO_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: conexion-config
+                  key: USUARIOS_MICROSERVICIO_URL
+            # CONFIGURACIÓN JWT
+            - name: JWT_SECRET
+              valueFrom:
+                configMapKeyRef:
+                  name: jwt-config
+                  key: JWT_SECRET
+            - name: JWT_REFRESH_SECRET
+              valueFrom:
+                configMapKeyRef:
+                  name: jwt-config
+                  key: JWT_REFRESH_SECRET
+            # SECRET BASE DE DATOS
+            - name: DATABASE_MYSQL_USER
+              valueFrom:
+                secretKeyRef:
+                  name: database-secret
+                  key: DATABASE_MYSQL_USER
+            - name: DATABASE_MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: database-secret
+                  key: DATABASE_MYSQL_PASSWORD
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "64m"
+            limits:
+              memory: "128Mi"
+              cpu: "64m"
