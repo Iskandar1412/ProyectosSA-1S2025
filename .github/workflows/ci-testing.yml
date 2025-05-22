@@ -1,0 +1,78 @@
+name: Testing and Docker Push CI
+
+on:
+  # push:
+  #   branches: [ Testing ]
+  pull_request:
+    branches: [ Testing ]
+
+jobs:
+  tests-microservices:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        microservice:
+          - Usuarios
+          - Productos
+          - Pagos
+          - Favoritos
+          - Devoluciones
+          - Compras
+    defaults:
+      run:
+        working-directory: ./Microservicios/${{ matrix.microservice }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 18.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run tests
+        run: npm test
+
+  deploy-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Auth with GCP
+        uses: google-github-actions/auth@v1
+        with:
+          credentials_json: '${{ secrets.GCP_CREDENTIALS_C2 }}'
+
+      - name: Setup gcloud
+        uses: google-github-actions/setup-gcloud@v1
+        with:
+          project_id: ${{ secrets.GCP_PROJECT_ID_C2 }}
+
+      - name: Install gke-gcloud-auth-plugin
+        run: |
+          gcloud components install gke-gcloud-auth-plugin
+          echo "USE_GKE_GCLOUD_AUTH_PLUGIN=True" >> $GITHUB_ENV
+
+      - name: Get GKE credentials
+        run: gcloud container clusters get-credentials soft --zone us-east1 --project ${{ secrets.GCP_PROJECT_ID_C2 }}
+
+      - name: Apply Kubernetes configurations
+        run: |
+          kubectl apply -f Kubernetes/Namespaces/namespace-project.yaml
+          kubectl apply -f Kubernetes/Config/configMap.yaml
+          kubectl apply -f Kubernetes/Secrets/secret.yaml
+          kubectl apply -f Kubernetes/Deployments/usuarios.yaml
+          kubectl apply -f Kubernetes/Deployments/productos.yaml
+          kubectl apply -f Kubernetes/Deployments/pagos.yaml
+          kubectl apply -f Kubernetes/Deployments/favoritos.yaml
+          kubectl apply -f Kubernetes/Deployments/devoluciones.yaml
+          kubectl apply -f Kubernetes/Deployments/compras.yaml
+          kubectl apply -f Kubernetes/Deployments/chatbot.yaml
+          kubectl apply -f Kubernetes/Ingress/ingress.yml
+
+      - name: Restart deployments
+        run: |
+          kubectl get deployments -n proyecto-sa -o name | xargs -n1 -I {} kubectl rollout restart {} -n proyecto-sa

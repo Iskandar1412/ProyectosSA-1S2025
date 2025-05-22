@@ -1,0 +1,11 @@
+// db credentials
+module.exports = {
+    DATABASE_HOST,
+    DATABASE_MYSQL_USER,
+    DATABASE_MYSQL_PASSWORD,
+    DATABASE_PORT,
+    TABLE_DEVOLUCIONES,
+    TABLE_PRODUCTOS,
+    TABLE_COMPRAS,
+    TABLE_CHATBOT,
+} = process.env;

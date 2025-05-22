@@ -1,0 +1,107 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: productos-ms
+  namespace: proyecto-sa
+  annotations:
+    cloud.google.com/neg: '{"ingress": true}'
+spec:
+  selector:
+    app: productos-ms
+  ports:
+    - protocol: TCP
+      port: 5300
+      targetPort: 5300
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: productos-ms
+  namespace: proyecto-sa
+  labels:
+    app: productos-ms
+spec:
+  selector:
+    matchLabels:
+      app: productos-ms
+  template:
+    metadata:
+      labels:
+        app: productos-ms
+    spec:
+      containers:
+        - name: productos-ms
+          image: iskandar1412/proyecto-sa:productos
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 5300
+          env:
+            # CONFIGURACIÓN DB
+            - name: DATABASE_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: database-config
+                  key: DATABASE_HOST
+            - name: DATABASE_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: database-config
+                  key: DATABASE_PORT
+            # CONFIGURACIÓN S3
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                configMapKeyRef:
+                  name: s3-config
+                  key: AWS_ACCESS_KEY_ID
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                configMapKeyRef:
+                  name: s3-config
+                  key: AWS_SECRET_ACCESS_KEY
+            - name: AWS_REGION
+              valueFrom:
+                configMapKeyRef:
+                  name: s3-config
+                  key: AWS_REGION
+            - name: AWS_BUCKET_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: s3-config
+                  key: AWS_BUCKET_NAME
+            # CONFIGURACIÓN CORS
+            - name: ALLOWED_CORS_ORIGINS
+              valueFrom:
+                configMapKeyRef:
+                  name: cors-config
+                  key: ALLOWED_CORS_ORIGINS
+            # CONFIGURACIÓN PRODUCTOS
+            - name: TABLE_PRODUCTOS
+              valueFrom:
+                configMapKeyRef:
+                  name: productos-config
+                  key: TABLE_PRODUCTOS
+            # CONEXIÓN CON MICROSERVICIO DE USUARIOS
+            - name: USUARIOS_MICROSERVICIO_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: conexion-config
+                  key: USUARIOS_MICROSERVICIO_URL
+            # SECRET BASE DE DATOS
+            - name: DATABASE_MYSQL_USER
+              valueFrom:
+                secretKeyRef:
+                  name: database-secret
+                  key: DATABASE_MYSQL_USER
+            - name: DATABASE_MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: database-secret
+                  key: DATABASE_MYSQL_PASSWORD
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "64m"
+            limits:
+              memory: "128Mi"
+              cpu: "64m"
