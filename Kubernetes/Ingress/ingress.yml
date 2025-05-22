@@ -1,0 +1,73 @@
+# kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.9.4/deploy/static/provider/cloud/deploy.yaml
+# kubectl port-forward -n ingress-nginx svc/ingress-nginx-controller 8080:80
+# cat ~/.kube/config
+# kubectl config delete-cluster kind-kind
+# kubectl config delete-cluster kind-proyecto-cluster
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ms-ingress
+  namespace: proyecto-sa
+  labels:
+    app: proyecto-sa
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$1
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/enable-cors: "true"
+    nginx.ingress.kubernetes.io/cors-allow-origin: "*"
+    nginx.ingress.kubernetes.io/cors-allow-methods: "GET, POST, OPTIONS, PUT, DELETE"
+    nginx.ingress.kubernetes.io/cors-allow-headers: "Authorization, authorization, refresh, Content-Type"
+spec:
+  ingressClassName: nginx
+  rules:
+    - http:
+        paths:
+          - path: /chatbot/?(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: chatbot-ms
+                port:
+                  number: 5500
+          - path: /compras/?(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: compras-ms
+                port:
+                  number: 5100
+          - path: /devoluciones/?(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: devoluciones-ms
+                port:
+                  number: 5700
+          - path: /favoritos/?(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: favoritos-ms
+                port:
+                  number: 5400
+          - path: /pagos/?(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: pagos-ms
+                port:
+                  number: 5600
+          - path: /productos/?(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: productos-ms
+                port:
+                  number: 5300
+          - path: /usuarios/?(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: usuarios-ms
+                port:
+                  number: 5200

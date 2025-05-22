@@ -1,0 +1,134 @@
+# Base de datos
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: database-config
+  namespace: proyecto-sa
+data:
+  DATABASE_HOST: "proyecto-sa.XXXXXX.us-east-1.rds.amazonaws.com"
+  DATABASE_PORT: "3306"
+---
+# AWS S3
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: s3-config
+  namespace: proyecto-sa
+data:
+  AWS_ACCESS_KEY_ID: "XXXXXXX"
+  AWS_SECRET_ACCESS_KEY: "XXXXXXX"
+  AWS_REGION: "us-east-1"
+  AWS_BUCKET_NAME: "proyecto-sa-g11"
+---
+# Nodemailer
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: correo-config
+  namespace: proyecto-sa
+data:
+  BASE_CORREO: "XXXXXXX"
+  BASE_CORREO_PASS: "XXXX XXXX XXXX XXXX"
+---
+# CORS
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cors-config
+  namespace: proyecto-sa
+data:
+  ALLOWED_CORS_ORIGINS: "http://ms-ingress,http://ms-ingress:5173,http://localhost:5173,http://35.231.160.45:5173"
+---
+# JWT
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: jwt-config
+  namespace: proyecto-sa
+data:
+  JWT_SECRET: "SA1S2025"
+  JWT_REFRESH_SECRET: "SA1S2025SECRET"
+  JWT_EXPIRATION: "7d"
+  JWT_REFRESH_EXPIRATION: "7d"
+---
+# AES
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: aes-config
+  namespace: proyecto-sa
+data:
+  AES_KEY: "b8faf154b7ae27b970b012a11556e819bd59d41bc2a054f5b0dd67197a75cb30"
+  AES_IV: "81b704e80c7c1991bf143507140a8dfb"
+---
+# Conexión MS Usuarios
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: conexion-config
+  namespace: proyecto-sa
+data:
+  USUARIOS_MICROSERVICIO_URL: "http://usuarios-ms:5200/api"
+---
+# Microservicio Usuarios
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: usuarios-config
+  namespace: proyecto-sa
+data:
+  TABLE_USUARIOS: "UsuariosMS"
+---
+# Microservicio Productos
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: productos-config
+  namespace: proyecto-sa
+data:
+  TABLE_PRODUCTOS: "ProductosMS"
+---
+# Microservicio Compras
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: compras-config
+  namespace: proyecto-sa
+data:
+  TABLE_COMPRAS: "ComprasMS"
+---
+# Microservicio Devoluciones
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: devoluciones-config
+  namespace: proyecto-sa
+data:
+  TABLE_DEVOLUCIONES: "DevolucionesMS"
+---
+# Microservicio Favoritos
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: favoritos-config
+  namespace: proyecto-sa
+data:
+  TABLE_FAVORITOS: "FavoritosMS"
+---
+# Microservicio Pagos
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pagos-config
+  namespace: proyecto-sa
+data:
+  TABLE_PAGOS: "PagosMS"
+---
+# Microservicio Chatbot
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: chatbot-config
+  namespace: proyecto-sa
+data:
+  TABLE_CHATBOT: "ChatbotMS"
