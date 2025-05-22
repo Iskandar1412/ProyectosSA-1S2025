@@ -1,0 +1,36 @@
+name: Delivery Release
+
+on:
+  # push:
+  #   branches: [ release/* ]
+  pull_request:
+    branches: [ release/* ]
+
+jobs:
+  deploy-dev:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Docker Login
+        run: echo "${{ secrets.DOCKERHUB_PASS }}" | docker login -u "${{ secrets.DOCKERHUB_USER }}" --password-stdin
+
+      - name: Build image
+        run: |
+          docker build -t ${{ secrets.DOCKERHUB_USER }}/proyecto-sa:chatbot-prod Microservicios/Chatbot/.
+          docker build -t ${{ secrets.DOCKERHUB_USER }}/proyecto-sa:compras-prod Microservicios/Compras/.
+          docker build -t ${{ secrets.DOCKERHUB_USER }}/proyecto-sa:devoluciones-prod Microservicios/Devoluciones/.
+          docker build -t ${{ secrets.DOCKERHUB_USER }}/proyecto-sa:favoritos-prod Microservicios/Favoritos/.
+          docker build -t ${{ secrets.DOCKERHUB_USER }}/proyecto-sa:pagos-prod Microservicios/Pagos/.
+          docker build -t ${{ secrets.DOCKERHUB_USER }}/proyecto-sa:productos-prod Microservicios/Productos/.
+          docker build -t ${{ secrets.DOCKERHUB_USER }}/proyecto-sa:usuarios-prod Microservicios/Usuarios/.
+
+      - name: Push image
+        run: | 
+          docker push ${{ secrets.DOCKERHUB_USER }}/proyecto-sa:chatbot-prod
+          docker push ${{ secrets.DOCKERHUB_USER }}/proyecto-sa:compras-prod
+          docker push ${{ secrets.DOCKERHUB_USER }}/proyecto-sa:devoluciones-prod
+          docker push ${{ secrets.DOCKERHUB_USER }}/proyecto-sa:favoritos-prod
+          docker push ${{ secrets.DOCKERHUB_USER }}/proyecto-sa:pagos-prod
+          docker push ${{ secrets.DOCKERHUB_USER }}/proyecto-sa:productos-prod
+          docker push ${{ secrets.DOCKERHUB_USER }}/proyecto-sa:usuarios-prod
